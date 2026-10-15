@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>R desde cero</title>
+<meta name="description" content="Guía de R para principiantes (nivel 0 a 4.5) con casos y datos simulados, pensada para preparar un examen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f0; --bg2:#efebe3; --card:#ffffff; --fg:#23211d; --mut:#6d665c; --bd:#e3ddd2;
+  --ac:#276dc3; --ac2:#1d5aa6; --acs:#e5eefa;
+  --code:#1b2230; --codefg:#e6edf5; --cm:#8b98ab; --st:#a6e3a1; --kw:#89b4fa; --nu:#fab387;
+  --out:#f1efe9; --outfg:#3a362f;
+  --tip:#1f8a5b; --tips:#e3f4ec; --warn:#b26a00; --warns:#fdf1dc; --exam:#7a3fc2; --exams:#f0e8fb; --err:#c0392b; --errs:#fbe6e3;
+  --sh:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.05);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#141518; --bg2:#1b1d21; --card:#1f2126; --fg:#e8e4dc; --mut:#9e978c; --bd:#30333a;
+  --ac:#6fa8ee; --ac2:#8bbaf2; --acs:#1d2a3c;
+  --code:#0d1016; --out:#191b20; --outfg:#d6d1c8;
+  --tip:#4fc68e; --tips:#16261f; --warn:#f0b04a; --warns:#2a2316; --exam:#b48cf0; --exams:#231c30; --err:#f07a6c; --errs:#2d1b19;
+  --sh:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#141518; --bg2:#1b1d21; --card:#1f2126; --fg:#e8e4dc; --mut:#9e978c; --bd:#30333a;
+    --ac:#6fa8ee; --ac2:#8bbaf2; --acs:#1d2a3c;
+    --code:#0d1016; --out:#191b20; --outfg:#d6d1c8;
+    --tip:#4fc68e; --tips:#16261f; --warn:#f0b04a; --warns:#2a2316; --exam:#b48cf0; --exams:#231c30; --err:#f07a6c; --errs:#2d1b19;
+    --sh:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16.5px/1.7 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
+a{color:var(--ac)}
+img{max-width:100%;height:auto;display:block}
+
+/* ---------- barra superior (móvil y tablet) ---------- */
+.topbar{display:none;position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--bd);
+  padding:10px 16px;padding-top:calc(10px + env(safe-area-inset-top,0px));align-items:center;gap:12px}
+.topbar b{font-size:15px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.iconbtn{background:var(--bg2);border:1px solid var(--bd);color:var(--fg);width:40px;height:40px;border-radius:10px;
+  font-size:18px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.progress{height:3px;background:var(--bd);position:absolute;left:0;right:0;bottom:-1px}
+.progress i{display:block;height:100%;background:var(--ac);transition:width .3s}
+
+/* ---------- layout ---------- */
+.wrap{display:flex;min-height:100vh}
+nav{width:290px;flex-shrink:0;background:var(--card);border-right:1px solid var(--bd);padding:24px 14px;
+  position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px 6px}
+.logo{width:40px;height:40px;border-radius:11px;background:var(--ac);color:#fff;font:800 22px Inter,sans-serif;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.brand h2{margin:0;font-size:17px;line-height:1.2}
+.brand small{color:var(--mut);font-size:12.5px}
+.navprog{margin:14px 8px 16px;font-size:12.5px;color:var(--mut)}
+.navprog .bar{height:6px;border-radius:6px;background:var(--bg2);margin-top:6px;overflow:hidden}
+.navprog .bar i{display:block;height:100%;background:var(--tip);transition:width .3s}
+nav ol{list-style:none;margin:0;padding:0}
+nav li a{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:9px;color:var(--fg);text-decoration:none;font-size:14px;line-height:1.35}
+nav li a:hover{background:var(--bg2)}
+nav li a.on{background:var(--acs);color:var(--ac2);font-weight:600}
+nav .num{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--bg2);color:var(--mut);font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin-top:-1px}
+nav a.on .num{background:var(--ac);color:#fff}
+nav a.done .num{background:var(--tip);color:#fff}
+nav .lv{display:block;font-size:11.5px;color:var(--mut);font-weight:500;margin-top:2px}
+.navfoot{margin:18px 8px 0;display:flex;gap:8px}
+.navfoot button{flex:1}
+.scrim{display:none}
+
+main{flex:1;min-width:0;padding:40px 40px 100px}
+.page{max-width:780px;margin:0 auto}
+section.cap{display:none;animation:fade .25s ease}
+section.cap.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- tipografía ---------- */
+.kicker{display:inline-flex;gap:8px;align-items:center;font-size:12.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ac)}
+.kicker .pill{background:var(--acs);padding:3px 10px;border-radius:99px}
+h1{font-size:clamp(28px,4.2vw,40px);line-height:1.15;letter-spacing:-.02em;margin:10px 0 12px}
+.lead{font-size:18px;color:var(--mut);margin:0 0 28px}
+h3{font-size:21px;letter-spacing:-.01em;margin:40px 0 10px;display:flex;align-items:center;gap:10px}
+h3 .step{font-size:12px;background:var(--fg);color:var(--bg);border-radius:6px;padding:2px 8px;font-weight:700}
+h4{font-size:16px;margin:24px 0 6px}
+p{margin:0 0 14px}
+ul,ol{padding-left:22px}
+li{margin:4px 0}
+code,pre{font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-size:.86em;background:var(--bg2);border:1px solid var(--bd);padding:1px 6px;border-radius:5px;overflow-wrap:anywhere}
+
+/* ---------- bloques de código ---------- */
+.code{position:relative;margin:16px 0 0;border-radius:12px;background:var(--code);box-shadow:var(--sh)}
+.code .lbl{display:flex;justify-content:space-between;align-items:center;padding:8px 10px 0 16px;font:600 11.5px Inter,sans-serif;color:#8b98ab;letter-spacing:.05em;text-transform:uppercase}
+.copy{background:rgba(255,255,255,.08);color:#c8d2de;border:0;border-radius:7px;padding:5px 10px;font:600 12px Inter,sans-serif;cursor:pointer}
+.copy:hover{background:rgba(255,255,255,.16)}
+pre{margin:0;padding:10px 16px 16px;overflow-x:auto;color:var(--codefg);font:14px/1.6 "JetBrains Mono",ui-monospace,Consolas,monospace;-webkit-overflow-scrolling:touch}
+pre code{background:none;border:0;padding:0;font-size:inherit;color:inherit;overflow-wrap:normal}
+.c-cm{color:var(--cm);font-style:italic}.c-st{color:var(--st)}.c-kw{color:var(--kw);font-weight:600}.c-nu{color:var(--nu)}
+.out{margin:0 0 16px;border-radius:0 0 12px 12px;background:var(--out);border:1px solid var(--bd);border-top:0}
+.code + .out{margin-top:-6px;padding-top:6px}
+.out .lbl{padding:8px 16px 0;font:600 11.5px Inter,sans-serif;color:var(--mut);letter-spacing:.05em;text-transform:uppercase}
+.out pre{color:var(--outfg);font-size:13.5px}
+.code:not(:has(+ .out)){margin-bottom:16px}
+
+/* ---------- cajas ---------- */
+.box{border-radius:12px;padding:14px 16px 14px 52px;margin:20px 0;position:relative;font-size:15.5px}
+.box::before{position:absolute;left:16px;top:13px;font-size:20px;line-height:1}
+.box p:last-child{margin:0}
+.box b.t{display:block;margin-bottom:2px}
+.tip{background:var(--tips);border:1px solid color-mix(in srgb,var(--tip) 30%,transparent)}.tip::before{content:"💡"}.tip b.t{color:var(--tip)}
+.warn{background:var(--warns);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent)}.warn::before{content:"⚠️"}.warn b.t{color:var(--warn)}
+.exam{background:var(--exams);border:1px solid color-mix(in srgb,var(--exam) 30%,transparent)}.exam::before{content:"🎯"}.exam b.t{color:var(--exam)}
+.err{background:var(--errs);border:1px solid color-mix(in srgb,var(--err) 30%,transparent)}.err::before{content:"🐞"}.err b.t{color:var(--err)}
+.idea{background:var(--acs);border:1px solid color-mix(in srgb,var(--ac) 30%,transparent)}.idea::before{content:"🧠"}.idea b.t{color:var(--ac2)}
+
+/* ---------- caso / dataset ---------- */
+.case{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px 18px 6px;margin:24px 0;box-shadow:var(--sh)}
+.case .tag{display:inline-block;font:700 11.5px Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;background:var(--fg);color:var(--bg);padding:3px 9px;border-radius:6px;margin-bottom:8px}
+.case h4{margin-top:4px}
+
+/* ---------- tablas ---------- */
+.tbl{overflow-x:auto;margin:14px 0 20px;border:1px solid var(--bd);border-radius:12px;background:var(--card);-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--bd);vertical-align:top}
+th{background:var(--bg2);font-weight:600;font-size:13px;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+
+/* ---------- figuras ---------- */
+figure{margin:18px 0 22px;background:#fff;border:1px solid var(--bd);border-radius:12px;padding:10px;box-shadow:var(--sh)}
+figcaption{font-size:13px;color:#6d665c;text-align:center;padding-top:6px}
+
+/* ---------- ejercicios ---------- */
+.ex{border:2px dashed color-mix(in srgb,var(--ac) 45%,transparent);border-radius:14px;padding:16px 18px;margin:26px 0;background:var(--card)}
+.ex .tag{font:700 12px Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--ac)}
+.ex p{margin:6px 0 10px}
+details{margin-top:6px}
+summary{cursor:pointer;font-weight:600;color:var(--ac);list-style:none;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;background:var(--acs);font-size:14px}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸";transition:transform .2s}
+details[open] summary::before{transform:rotate(90deg)}
+details > div{margin-top:10px}
+
+/* ---------- quiz ---------- */
+.quiz{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px;margin:28px 0;box-shadow:var(--sh)}
+.quiz > b{display:flex;gap:8px;align-items:center;font-size:15px;margin-bottom:6px}
+.q{margin:14px 0 4px}
+.q p{font-weight:600;margin-bottom:8px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;font:15px/1.4 Inter,sans-serif;background:var(--bg);color:var(--fg);border:1.5px solid var(--bd);border-radius:10px;padding:11px 14px;cursor:pointer;transition:.15s}
+.opt:hover{border-color:var(--ac)}
+.opt.ok{border-color:var(--tip);background:var(--tips)}
+.opt.no{border-color:var(--err);background:var(--errs)}
+.opt code{font-size:.85em}
+.fb{font-size:14px;margin-top:8px;min-height:0}
+.fb.ok{color:var(--tip)}.fb.no{color:var(--err)}
+
+/* ---------- navegación inferior ---------- */
+.pn{display:flex;justify-content:space-between;gap:12px;margin-top:56px;padding-top:24px;border-top:1px solid var(--bd);flex-wrap:wrap}
+.btn{font:600 14.5px Inter,sans-serif;background:var(--ac);color:#fff;border:0;padding:12px 18px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn.sec{background:var(--bg2);color:var(--fg);border:1px solid var(--bd)}
+.btn[disabled]{opacity:.35;cursor:default}
+.btn.done{background:var(--tip)}
+
+/* ---------- portada ---------- */
+.hero{background:linear-gradient(135deg,var(--ac) 0%,#6a4fc9 100%);color:#fff;border-radius:20px;padding:34px 28px;margin-bottom:28px;position:relative;overflow:hidden}
+.hero::after{content:"R";position:absolute;right:-10px;bottom:-60px;font:800 220px/1 Inter,sans-serif;opacity:.1}
+.hero h1{color:#fff;margin-top:6px}
+.hero p{color:rgba(255,255,255,.88);font-size:17px;max-width:520px;position:relative;z-index:1}
+.hero .kicker{color:#fff}.hero .kicker .pill{background:rgba(255,255,255,.2)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:18px 0}
+.tile{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;box-shadow:var(--sh)}
+.tile .em{font-size:24px}
+.tile b{display:block;margin:6px 0 2px}
+.tile span{font-size:14px;color:var(--mut)}
+.roadmap{display:grid;gap:8px;margin:16px 0}
+.roadmap a{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;color:var(--fg);text-decoration:none;cursor:pointer}
+.roadmap a:hover{border-color:var(--ac)}
+.roadmap .num{width:30px;height:30px;border-radius:50%;background:var(--acs);color:var(--ac2);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.roadmap small{display:block;color:var(--mut);font-size:12.5px}
+
+/* ---------- chuleta ---------- */
+.cheat{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.cheat .tile h4{margin:0 0 8px;font-size:15px}
+.cheat .tile table{font-size:13px}
+.cheat .tile td{padding:5px 6px;border-bottom:1px dashed var(--bd)}
+.cheat .tile td:first-child{white-space:nowrap}
+.cheat .tile code{font-size:12px}
+
+/* ---------- responsive ---------- */
+@media (max-width:1024px){
+  .topbar{display:flex}
+  nav{position:fixed;left:0;top:0;bottom:0;z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:var(--sh);width:min(310px,86vw);height:100%;padding-top:calc(24px + env(safe-area-inset-top,0px))}
+  nav.open{transform:none}
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40}
+  .scrim.open{display:block}
+  .navfoot .hide-m{display:none}
+  main{padding:28px 28px 90px}
+}
+@media (max-width:600px){
+  body{font-size:16px}
+  main{padding:20px 16px 80px}
+  .lead{font-size:16.5px}
+  h3{font-size:19px;margin-top:32px}
+  pre{font-size:13px;padding:8px 14px 14px}
+  .box{padding:12px 14px 12px 44px}.box::before{left:13px;font-size:18px}
+  .hero{padding:26px 20px;border-radius:16px}
+  .pn .btn{flex:1;justify-content:center}
+  .case,.quiz,.ex{padding-left:14px;padding-right:14px}
+}
+@media print{
+  nav,.topbar,.pn,.copy,.scrim{display:none!important}
+  section.cap{display:block!important;page-break-after:always}
+  main{padding:0}
+  details > div{display:block}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button class="iconbtn" id="menuBtn" aria-label="Abrir capítulos">☰</button>
+  <b id="topTitle">R desde cero</b>
+  <button class="iconbtn" id="themeBtnTop" aria-label="Cambiar tema">◐</button>
+  <div class="progress"><i id="topProg"></i></div>
+</header>
+<div class="scrim" id="scrim"></div>
+
+<div class="wrap">
+<nav id="nav" aria-label="Capítulos">
+  <div class="brand"><div class="logo">R</div><div><h2>R desde cero</h2><small>Guía de estudio · nivel 0 a 4.5</small></div></div>
+  <div class="navprog"><span id="progTxt">0 de 11 capítulos estudiados</span><div class="bar"><i id="progBar"></i></div></div>
+  <ol id="navList"></ol>
+  <div class="navfoot">
+    <button class="btn sec" id="themeBtn">◐ Tema</button>
+    <button class="btn sec hide-m" onclick="window.print()">🖨 Imprimir</button>
+  </div>
+</nav>
+
+<main><div class="page">
+
+<!-- =============================================== 0. INICIO -->
+<section class="cap" data-t="Bienvenida" data-l="Empieza aquí">
+  <div class="hero">
+    <span class="kicker"><span class="pill">Guía para examen</span></span>
+    <h1>R desde cero</h1>
+    <p>Aprende R paso a paso, sin saber programar. Cada tema trae un ejemplo con datos inventados, el resultado exacto que verás en pantalla, ejercicios con solución y preguntas tipo examen.</p>
+  </div>
+
+  <h3>Cómo usar esta guía</h3>
+  <div class="grid">
+    <div class="tile"><div class="em">📖</div><b>Lee en orden</b><span>Cada capítulo usa lo del anterior. No te saltes los primeros aunque parezcan fáciles.</span></div>
+    <div class="tile"><div class="em">⌨️</div><b>Escribe el código</b><span>Copia cada bloque en RStudio y ejecútalo con <code>Ctrl + Enter</code>. Se aprende tecleando.</span></div>
+    <div class="tile"><div class="em">✅</div><b>Compara el resultado</b><span>Debajo de cada código está lo que R te debe mostrar. Si sale igual, vas bien.</span></div>
+    <div class="tile"><div class="em">🎯</div><b>Haz el quiz</b><span>Al final de cada capítulo hay preguntas tipo examen. Al final, un simulacro y una chuleta.</span></div>
+  </div>
+
+  <h3>Los casos que usaremos</h3>
+  <p>Todos los datos son <b>simulados</b> (inventados), así que no necesitas descargar nada: el propio código los crea.</p>
+  <div class="tbl"><table>
+    <tr><th>Caso</th><th>Qué contiene</th><th>Dónde se usa</th></tr>
+    <tr><td>🍽️ La cuenta del menú</td><td>Precios y personas</td><td>Nivel 1</td></tr>
+    <tr><td>🎓 Salón de clase <code>alumnos</code></td><td>8 alumnos: sección, horas de estudio y nota</td><td>Niveles 2 y 3</td></tr>
+    <tr><td>🛒 Bodegas <code>ventas</code></td><td>120 ventas en Lima, Arequipa y Cusco, con o sin promoción</td><td>Nivel 4</td></tr>
+    <tr><td>📚 Estudio vs nota <code>estudio</code></td><td>50 estudiantes: horas estudiadas y nota final</td><td>Nivel 4.5</td></tr>
+  </table></div>
+
+  <h3>Ruta de aprendizaje</h3>
+  <div class="roadmap" id="roadmap"></div>
+
+  <div class="tip box"><b class="t">Todo el código en un solo archivo</b><p>En el repositorio está <code>codigo/guia_completa.R</code> con todos los ejemplos en orden. Ábrelo en RStudio y ve ejecutándolo mientras lees.</p></div>
+</section>
+
+<!-- =============================================== 1. NIVEL 0 -->
+<section class="cap" data-t="Qué es R y cómo instalarlo" data-l="Nivel 0">
+  <span class="kicker"><span class="pill">Nivel 0</span> Capítulo 1</span>
+  <h1>Qué es R y cómo instalarlo</h1>
+  <p class="lead">Antes de escribir código, entiende qué es R, qué es RStudio y dónde se escribe cada cosa.</p>
+
+  <div class="idea box"><b class="t">En palabras simples</b><p><b>R</b> es como el motor de un carro: hace los cálculos. <b>RStudio</b> es el tablero y el timón: el programa cómodo desde donde manejas ese motor. Necesitas los dos, pero siempre abrirás <b>RStudio</b>.</p></div>
+
+  <h3><span class="step">1</span> Instalación (en este orden)</h3>
+  <ol>
+    <li>Instala <b>R</b> desde <code>cran.r-project.org</code> → elige tu sistema (Windows, Mac o Linux) → descarga e instala con “Siguiente, siguiente”.</li>
+    <li>Instala <b>RStudio Desktop</b> desde <code>posit.co/download/rstudio-desktop</code>.</li>
+    <li>Abre <b>RStudio</b> (no R). Ve a <b>File → New File → R Script</b> para tener una hoja donde escribir.</li>
+  </ol>
+
+  <h3><span class="step">2</span> Las 4 zonas de RStudio</h3>
+  <div class="tbl"><table>
+    <tr><th>Zona</th><th>Para qué sirve</th><th>Analogía</th></tr>
+    <tr><td><b>Editor</b> (arriba izq.)</td><td>Escribes y guardas tu código (archivo <code>.R</code>)</td><td>Tu cuaderno</td></tr>
+    <tr><td><b>Consola</b> (abajo izq.)</td><td>R ejecuta el código y muestra el resultado</td><td>La calculadora</td></tr>
+    <tr><td><b>Entorno</b> (arriba der.)</td><td>Lista lo que has guardado (variables, tablas)</td><td>Tu mochila</td></tr>
+    <tr><td><b>Archivos / Gráficos / Ayuda</b> (abajo der.)</td><td>Ves gráficos, carpetas y la ayuda</td><td>La pizarra</td></tr>
+  </table></div>
+
+  <div class="tip box"><b class="t">El atajo más importante</b><p>Pon el cursor en una línea del editor y presiona <code>Ctrl + Enter</code> (en Mac <code>Cmd + Enter</code>). Esa línea se ejecuta y el resultado aparece en la consola.</p></div>
+
+  <h3><span class="step">3</span> Tu primer código</h3>
+  <div class="code"><pre><code>print("Hola, R")
+2 + 2</code></pre></div>
+  <div class="out"><pre>[1] "Hola, R"
+[1] 4</pre></div>
+  <p>¿Qué es ese <code>[1]</code>? Solo indica “este es el primer valor del resultado”. Puedes ignorarlo por ahora.</p>
+
+  <h3><span class="step">4</span> Comentarios y ayuda</h3>
+  <div class="code"><pre><code># Esto es un comentario: R lo ignora. Sirve para explicar tu código.
+?mean   # abre la ayuda de la función mean (promedio)</code></pre></div>
+
+  <div class="err box"><b class="t">Si ves un <code>+</code> en la consola</b><p>R está esperando que termines algo: te faltó cerrar un paréntesis <code>)</code> o unas comillas <code>"</code>. Presiona <code>Esc</code> y vuelve a escribir la línea.</p></div>
+
+  <div class="ex"><span class="tag">✏️ Ejercicio</span>
+    <p>Escribe en el editor <code>10 * 5</code> y ejecútalo con <code>Ctrl + Enter</code>. ¿Qué aparece?</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>10 * 5</code></pre></div><div class="out"><pre>[1] 50</pre></div>
+    </div></details>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <b>🎯 Pregunta tipo examen</b>
+    <div class="q" data-ans="1"><p>¿Qué programa abres para trabajar normalmente?</p><div class="opts">
+      <button class="opt">R, porque es el que hace los cálculos</button>
+      <button class="opt">RStudio, que usa R por dentro</button>
+      <button class="opt">Excel, y luego se copia a R</button>
+    </div><div class="fb" data-ok="Correcto: RStudio es la interfaz; R trabaja por detrás." data-no="Recuerda: R es el motor, RStudio es el tablero que usas."></div></div>
+    <div class="q" data-ans="2"><p>¿Para qué sirve el símbolo <code>#</code>?</p><div class="opts">
+      <button class="opt">Para multiplicar</button>
+      <button class="opt">Para crear una variable</button>
+      <button class="opt">Para escribir comentarios que R ignora</button>
+    </div><div class="fb" data-ok="¡Bien! Todo lo que va después de # es un comentario." data-no="No. El # marca un comentario: R no lo ejecuta."></div></div>
+  </div>
+</section>
+
+<!-- =============================================== 2. NIVEL 1 -->
+<section class="cap" data-t="Calculadora, variables y tipos" data-l="Nivel 1">
+  <span class="kicker"><span class="pill">Nivel 1</span> Capítulo 2</span>
+  <h1>R como calculadora, variables y tipos de datos</h1>
+  <p class="lead">Aprende a hacer cuentas, guardar resultados con un nombre y reconocer qué tipo de dato tienes.</p>
+
+  <h3><span class="step">1</span> Operaciones básicas</h3>
+  <div class="code"><pre><code>5 + 3        # suma
+9 / 2        # división
+2 ^ 3        # potencia (2 al cubo)
+10 %% 3      # resto de la división
+10 %/% 3     # división entera
+sqrt(16)     # raíz cuadrada
+round(3.14159, 2)   # redondear a 2 decimales</code></pre></div>
+  <div class="out"><pre>[1] 8
+[1] 4.5
+[1] 8
+[1] 1
+[1] 3
+[1] 4
+[1] 3.14</pre></div>
+  <div class="warn box"><b class="t">Decimales con punto</b><p>En R se escribe <code>4.5</code>, nunca <code>4,5</code>. La coma sirve para separar cosas, por ejemplo dentro de <code>round(3.14159, 2)</code>.</p></div>
+
+  <h3><span class="step">2</span> Variables: guardar valores con nombre</h3>
+  <div class="idea box"><b class="t">En palabras simples</b><p>Una variable es una <b>caja con etiqueta</b>. La flecha <code>&lt;-</code> significa “guarda esto en la caja”. Se lee de derecha a izquierda: el valor entra a la caja.</p></div>
+
+  <div class="case"><span class="tag">Caso 🍽️</span><h4>La cuenta del menú</h4>
+    <p>Cuatro amigos almuerzan un menú de S/ 12.50 cada uno. ¿Cuánto es el total y cuánto paga cada uno?</p>
+    <div class="code"><pre><code>precio_menu &lt;- 12.5
+personas    &lt;- 4
+total       &lt;- precio_menu * personas
+total
+total / personas</code></pre></div>
+    <div class="out"><pre>[1] 50
+[1] 12.5</pre></div>
+    <p>Fíjate: al guardar (<code>&lt;-</code>) R no muestra nada. Para ver el contenido, escribe solo el nombre (<code>total</code>).</p>
+  </div>
+
+  <div class="warn box"><b class="t">Reglas para nombres</b><p>R distingue mayúsculas: <code>total</code> y <code>Total</code> son cajas distintas. No uses espacios ni tildes; usa guion bajo: <code>precio_menu</code>. No pueden empezar con número.</p></div>
+
+  <h3><span class="step">3</span> Tipos de datos</h3>
+  <div class="tbl"><table>
+    <tr><th>Tipo</th><th>Ejemplo</th><th>Nombre en R</th><th>Ojo</th></tr>
+    <tr><td>Número</td><td><code>12.5</code></td><td>numeric</td><td>Con o sin decimales</td></tr>
+    <tr><td>Entero</td><td><code>5L</code></td><td>integer</td><td>La <code>L</code> lo fuerza a entero</td></tr>
+    <tr><td>Texto</td><td><code>"Ana"</code></td><td>character</td><td>Siempre entre comillas</td></tr>
+    <tr><td>Lógico</td><td><code>TRUE</code> / <code>FALSE</code></td><td>logical</td><td>Verdadero / falso, en mayúsculas</td></tr>
+  </table></div>
+  <div class="code"><pre><code>nombre &lt;- "Ana"
+class(precio_menu)
+class(nombre)
+class(TRUE)
+class(5L)</code></pre></div>
+  <div class="out"><pre>[1] "numeric"
+[1] "character"
+[1] "logical"
+[1] "integer"</pre></div>
+
+  <h3><span class="step">4</span> Comparaciones (dan TRUE o FALSE)</h3>
+  <div class="code"><pre><code>5 &gt; 3               # mayor que
+5 == 5              # igual (¡dos signos =!)
+5 != 4              # distinto
+(7 &gt; 3) &amp; (2 &gt; 5)   # Y: las dos deben cumplirse
+(7 &gt; 3) | (2 &gt; 5)   # O: basta con una</code></pre></div>
+  <div class="out"><pre>[1] TRUE
+[1] TRUE
+[1] TRUE
+[1] FALSE
+[1] TRUE</pre></div>
+
+  <div class="exam box"><b class="t">Clásico de examen</b><p><code>=</code> (un signo) se puede usar para guardar, igual que <code>&lt;-</code>. Pero para <b>comparar</b> siempre es <code>==</code> (dos signos).</p></div>
+
+  <div class="err box"><b class="t">Error típico</b><p><code>Error: object 'Total' not found</code> (o <i>objeto 'Total' no encontrado</i>) → escribiste mal el nombre, cambiaste mayúsculas, o no ejecutaste la línea donde lo creaste.</p></div>
+
+  <div class="ex"><span class="tag">✏️ Ejercicio · Caso mercado</span>
+    <p>Compras 3 kg de arroz a S/ 4.20 el kilo y 2 litros de aceite a S/ 9.90 el litro. Guarda cada precio en una variable y calcula el total.</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>arroz  &lt;- 4.20
+aceite &lt;- 9.90
+total_compra &lt;- 3 * arroz + 2 * aceite
+total_compra</code></pre></div><div class="out"><pre>[1] 32.4</pre></div>
+    </div></details>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <b>🎯 Preguntas tipo examen</b>
+    <div class="q" data-ans="0"><p>¿Qué devuelve <code>10 %% 3</code>?</p><div class="opts">
+      <button class="opt">1</button><button class="opt">3</button><button class="opt">3.33</button>
+    </div><div class="fb" data-ok="Correcto: %% es el resto. 10 = 3×3 + 1." data-no="%% da el RESTO de la división: 10 entre 3 es 3 y sobra 1."></div></div>
+    <div class="q" data-ans="2"><p>¿Qué tipo de dato es <code>"25"</code> (con comillas)?</p><div class="opts">
+      <button class="opt">numeric</button><button class="opt">integer</button><button class="opt">character</button>
+    </div><div class="fb" data-ok="¡Exacto! Las comillas lo convierten en texto." data-no="Ojo: todo lo que va entre comillas es texto (character), aunque parezca número."></div></div>
+  </div>
+</section>
+
+<!-- =============================================== 3. NIVEL 2 VECTORES -->
+<section class="cap" data-t="Vectores, factores y listas" data-l="Nivel 2">
+  <span class="kicker"><span class="pill">Nivel 2</span> Capítulo 3</span>
+  <h1>Vectores, factores y listas</h1>
+  <p class="lead">Ahora guardarás muchos valores en una sola variable y harás cálculos con todos a la vez.</p>
+
+  <h3><span class="step">1</span> Vectores</h3>
+  <div class="idea box"><b class="t">En palabras simples</b><p>Un vector es una <b>fila de casilleros</b> numerados, todos con el mismo tipo de dato. Se crea con <code>c()</code>, que significa “combinar”.</p></div>
+
+  <div class="case"><span class="tag">Caso 🎓</span><h4>Las notas de 5 alumnos</h4>
+    <div class="code"><pre><code>notas &lt;- c(14, 18, 9, 16, 11)
+notas
+notas[2]          # el casillero 2
+notas[c(1, 3)]    # casilleros 1 y 3
+notas[-1]         # todos menos el 1</code></pre></div>
+    <div class="out"><pre>[1] 14 18  9 16 11
+[1] 18
+[1] 14  9
+[1] 18  9 16 11</pre></div>
+  </div>
+  <div class="warn box"><b class="t">En R se cuenta desde 1</b><p>El primer elemento es <code>notas[1]</code>, no <code>notas[0]</code> como en otros lenguajes.</p></div>
+
+  <h3><span class="step">2</span> Funciones de resumen</h3>
+  <div class="code"><pre><code>length(notas)   # cuántos hay
+mean(notas)     # promedio
+sum(notas)      # suma
+max(notas)      # máximo
+min(notas)      # mínimo</code></pre></div>
+  <div class="out"><pre>[1] 5
+[1] 13.6
+[1] 68
+[1] 18
+[1] 9</pre></div>
+
+  <h3><span class="step">3</span> Operar y filtrar todo a la vez</h3>
+  <div class="code"><pre><code>notas + 1               # bono de 1 punto a todos
+notas &gt;= 11             # ¿quién aprobó?
+notas[notas &gt;= 11]      # solo las notas aprobatorias
+sum(notas &gt;= 11)        # cuántos aprobaron</code></pre></div>
+  <div class="out"><pre>[1] 15 19 10 17 12
+[1]  TRUE  TRUE FALSE  TRUE  TRUE
+[1] 14 18 16 11
+[1] 4</pre></div>
+  <div class="exam box"><b class="t">Truco que siempre sale</b><p><code>sum(condición)</code> cuenta cuántos cumplen, porque R trata <code>TRUE</code> como 1 y <code>FALSE</code> como 0. Y <code>mean(condición)</code> te da la <b>proporción</b>.</p></div>
+
+  <h3><span class="step">4</span> Secuencias útiles</h3>
+  <div class="code"><pre><code>1:5                  # del 1 al 5
+seq(0, 20, by = 5)   # de 0 a 20 de 5 en 5
+rep("A", 3)          # repetir</code></pre></div>
+  <div class="out"><pre>[1] 1 2 3 4 5
+[1]  0  5 10 15 20
+[1] "A" "A" "A"</pre></div>
+
+  <div class="err box"><b class="t">Si mezclas tipos, todo se vuelve texto</b>
+    <div class="code"><pre><code>c(1, "dos", TRUE)</code></pre></div><div class="out"><pre>[1] "1"    "dos"  "TRUE"</pre></div>
+  </div>
+
+  <h3><span class="step">5</span> Factores: categorías</h3>
+  <p>Un factor es un vector de <b>categorías</b> (sección, sexo, ciudad). R sabe cuáles son los grupos posibles.</p>
+  <div class="code"><pre><code>seccion &lt;- factor(c("A", "B", "A", "A", "B"))
+levels(seccion)   # categorías posibles
+table(seccion)    # cuántos hay en cada una</code></pre></div>
+  <div class="out"><pre>[1] "A" "B"
+seccion
+A B
+3 2 </pre></div>
+
+  <h3><span class="step">6</span> Listas: una mochila con de todo</h3>
+  <p>A diferencia del vector, una lista <b>sí</b> puede guardar cosas de tipos distintos. Se accede con <code>$</code>.</p>
+  <div class="code"><pre><code>alumno &lt;- list(nombre = "Ana", edad = 20, notas = c(14, 18))
+alumno$nombre
+alumno$notas</code></pre></div>
+  <div class="out"><pre>[1] "Ana"
+[1] 14 18</pre></div>
+
+  <div class="ex"><span class="tag">✏️ Ejercicio · Caso clima</span>
+    <p>Guarda las temperaturas de la semana <code>18, 22, 25, 19, 21</code>. Calcula el promedio y muestra solo los días más calurosos que el promedio.</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>temp &lt;- c(18, 22, 25, 19, 21)
+mean(temp)
+temp[temp &gt; mean(temp)]</code></pre></div><div class="out"><pre>[1] 21
+[1] 22 25</pre></div>
+    </div></details>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <b>🎯 Preguntas tipo examen</b>
+    <div class="q" data-ans="1"><p>Si <code>x &lt;- c(5, 8, 2)</code>, ¿qué devuelve <code>x[2]</code>?</p><div class="opts">
+      <button class="opt">5</button><button class="opt">8</button><button class="opt">2</button>
+    </div><div class="fb" data-ok="¡Bien! En R se cuenta desde 1, así que el 2.º es 8." data-no="En R el primer elemento es el 1. El segundo es 8."></div></div>
+    <div class="q" data-ans="0"><p>¿Qué hace <code>sum(notas &gt;= 11)</code>?</p><div class="opts">
+      <button class="opt">Cuenta cuántas notas son 11 o más</button><button class="opt">Suma las notas aprobatorias</button><button class="opt">Da error porque no se pueden sumar TRUE</button>
+    </div><div class="fb" data-ok="Correcto: suma TRUE (1) y FALSE (0), es decir, cuenta." data-no="notas >= 11 da TRUE/FALSE; sumarlos cuenta los TRUE. Para sumar las notas sería sum(notas[notas >= 11])."></div></div>
+  </div>
+</section>
+
+<!-- =============================================== 4. DATA FRAMES -->
+<section class="cap" data-t="Data frames: tus tablas" data-l="Nivel 2">
+  <span class="kicker"><span class="pill">Nivel 2</span> Capítulo 4</span>
+  <h1>Data frames: tus tablas</h1>
+  <p class="lead">La estructura más importante de R. Si entiendes este capítulo, entiendes la mitad del examen.</p>
+
+  <div class="idea box"><b class="t">En palabras simples</b><p>Un data frame es una <b>hoja de Excel</b>: cada <b>fila</b> es un caso (un alumno) y cada <b>columna</b> una característica (su nota). Por dentro, cada columna es un vector.</p></div>
+
+  <div class="case"><span class="tag">Caso 🎓</span><h4>El salón de clase</h4>
+    <p>Datos simulados de 8 alumnos: su sección, cuántas horas estudiaron y su nota (sobre 20).</p>
+    <div class="code"><pre><code>alumnos &lt;- data.frame(
+  nombre  = c("Ana", "Bruno", "Carla", "Diego", "Elena", "Fabio", "Gina", "Hugo"),
+  seccion = c("A", "A", "B", "B", "A", "B", "A", "B"),
+  horas   = c(10, 4, 8, 2, 12, 6, 9, 3),
+  nota    = c(17, 10, 15, 8, 19, 12, 16, 9)
+)
+alumnos</code></pre></div>
+    <div class="out"><pre>  nombre seccion horas nota
+1    Ana       A    10   17
+2  Bruno       A     4   10
+3  Carla       B     8   15
+4  Diego       B     2    8
+5  Elena       A    12   19
+6  Fabio       B     6   12
+7   Gina       A     9   16
+8   Hugo       B     3    9</pre></div>
+  </div>
+
+  <h3><span class="step">1</span> Explorar la tabla</h3>
+  <div class="code"><pre><code>str(alumnos)      # estructura: columnas y sus tipos
+nrow(alumnos)     # número de filas
+ncol(alumnos)     # número de columnas
+names(alumnos)    # nombres de columnas
+summary(alumnos$nota)</code></pre></div>
+  <div class="out"><pre>'data.frame':	8 obs. of  4 variables:
+ $ nombre : chr  "Ana" "Bruno" "Carla" "Diego" ...
+ $ seccion: chr  "A" "A" "B" "B" ...
+ $ horas  : num  10 4 8 2 12 6 9 3
+ $ nota   : num  17 10 15 8 19 12 16 9
+[1] 8
+[1] 4
+[1] "nombre"  "seccion" "horas"   "nota"
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+   8.00    9.75   13.50   13.25   16.25   19.00 </pre></div>
+  <p>Otras útiles: <code>head(alumnos)</code> muestra las 6 primeras filas y <code>View(alumnos)</code> abre la tabla como en Excel.</p>
+
+  <h3><span class="step">2</span> La regla de oro: <code>tabla[filas, columnas]</code></h3>
+  <div class="tip box"><b class="t">Memoriza esto</b><p>Lo que va <b>antes</b> de la coma elige <b>filas</b>; lo que va <b>después</b>, <b>columnas</b>. Si dejas un lado vacío significa “todas”.</p></div>
+  <div class="code"><pre><code>alumnos$nota              # una columna (como vector)
+alumnos[3, ]              # fila 3, todas las columnas
+alumnos[3, "nota"]        # fila 3, columna nota</code></pre></div>
+  <div class="out"><pre>[1] 17 10 15  8 19 12 16  9
+  nombre seccion horas nota
+3  Carla       B     8   15
+[1] 15</pre></div>
+
+  <h3><span class="step">3</span> Filtrar filas con una condición</h3>
+  <div class="code"><pre><code># ¿Quiénes aprobaron?
+alumnos[alumnos$nota &gt;= 11, ]
+
+# Nombre y nota de la sección A
+alumnos[alumnos$seccion == "A", c("nombre", "nota")]</code></pre></div>
+  <div class="out"><pre>  nombre seccion horas nota
+1    Ana       A    10   17
+3  Carla       B     8   15
+5  Elena       A    12   19
+6  Fabio       B     6   12
+7   Gina       A     9   16
+  nombre nota
+1    Ana   17
+2  Bruno   10
+5  Elena   19
+7   Gina   16</pre></div>
+
+  <h3><span class="step">4</span> Crear columnas y ordenar</h3>
+  <div class="code"><pre><code>alumnos$aprobado &lt;- alumnos$nota &gt;= 11       # nueva columna TRUE/FALSE
+alumnos[order(-alumnos$nota), c("nombre", "nota")]   # de mayor a menor</code></pre></div>
+  <div class="out"><pre>  nombre nota
+5  Elena   19
+1    Ana   17
+7   Gina   16
+3  Carla   15
+6  Fabio   12
+2  Bruno   10
+8   Hugo    9
+4  Diego    8</pre></div>
+  <p><code>order()</code> ordena de menor a mayor; el signo <code>-</code> lo invierte.</p>
+
+  <div class="err box"><b class="t">Error típico</b><p><code>undefined columns selected</code> → olvidaste la coma. <code>alumnos[alumnos$nota &gt;= 11]</code> está mal; lo correcto es <code>alumnos[alumnos$nota &gt;= 11, ]</code>.</p></div>
+
+  <div class="ex"><span class="tag">✏️ Ejercicio · Caso bodega</span>
+    <p>Crea un data frame <code>productos</code> con Arroz (4.20), Aceite (9.90), Leche (4.50) y Pan (0.50). Agrega una columna <code>con_igv</code> con el precio más 18% de IGV.</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>productos &lt;- data.frame(
+  producto = c("Arroz", "Aceite", "Leche", "Pan"),
+  precio   = c(4.2, 9.9, 4.5, 0.5)
+)
+productos$con_igv &lt;- productos$precio * 1.18
+productos</code></pre></div><div class="out"><pre>  producto precio con_igv
+1    Arroz    4.2   4.956
+2   Aceite    9.9  11.682
+3    Leche    4.5   5.310
+4      Pan    0.5   0.590</pre></div>
+    </div></details>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <b>🎯 Preguntas tipo examen</b>
+    <div class="q" data-ans="2"><p>¿Qué devuelve <code>alumnos[2, ]</code>?</p><div class="opts">
+      <button class="opt">La columna 2 completa</button><button class="opt">Solo el valor de la celda 2</button><button class="opt">La fila 2 con todas las columnas</button>
+    </div><div class="fb" data-ok="¡Exacto! Antes de la coma = filas." data-no="Recuerda [filas, columnas]: el 2 está antes de la coma, así que es la fila 2."></div></div>
+    <div class="q" data-ans="1"><p>¿Cómo obtienes la columna <code>horas</code>?</p><div class="opts">
+      <button class="opt"><code>alumnos(horas)</code></button><button class="opt"><code>alumnos$horas</code></button><button class="opt"><code>alumnos.horas</code></button>
+    </div><div class="fb" data-ok="Correcto: el $ entra a una columna." data-no="Se usa el signo $: alumnos$horas."></div></div>
+  </div>
+</section>
+
+<!-- =============================================== 5. NIVEL 3 -->
+<section class="cap" data-t="Condicionales, bucles y funciones" data-l="Nivel 3">
+  <span class="kicker"><span class="pill">Nivel 3</span> Capítulo 5</span>
+  <h1>Condicionales, bucles y funciones</h1>
+  <p class="lead">Enseña a R a tomar decisiones, a repetir tareas y a crear tus propias herramientas.</p>
+
+  <h3><span class="step">1</span> if / else: tomar una decisión</h3>
+  <div class="idea box"><b class="t">En palabras simples</b><p>“<b>Si</b> la nota es 11 o más, di Aprobado; <b>si no</b>, di Desaprobado.” La condición va entre <code>( )</code> y lo que se hace, entre <code>{ }</code>.</p></div>
+  <div class="code"><pre><code>nota &lt;- 13
+if (nota &gt;= 11) {
+  print("Aprobado")
+} else {
+  print("Desaprobado")
+}</code></pre></div>
+  <div class="out"><pre>[1] "Aprobado"</pre></div>
+
+  <h3><span class="step">2</span> ifelse: decidir para toda una columna</h3>
+  <p><code>if</code> evalúa <b>un solo</b> valor. Para una columna entera usa <code>ifelse(condición, si_sí, si_no)</code>.</p>
+  <div class="code"><pre><code>alumnos$estado &lt;- ifelse(alumnos$nota &gt;= 11, "Aprobado", "Desaprobado")
+alumnos[, c("nombre", "nota", "estado")]</code></pre></div>
+  <div class="out"><pre>  nombre nota      estado
+1    Ana   17    Aprobado
+2  Bruno   10 Desaprobado
+3  Carla   15    Aprobado
+4  Diego    8 Desaprobado
+5  Elena   19    Aprobado
+6  Fabio   12    Aprobado
+7   Gina   16    Aprobado
+8   Hugo    9 Desaprobado</pre></div>
+
+  <h3><span class="step">3</span> for: repetir</h3>
+  <div class="code"><pre><code>for (i in 1:3) {
+  print(paste("Vuelta número", i))
+}
+
+for (n in alumnos$nombre[1:3]) {
+  print(paste("Hola,", n))
+}</code></pre></div>
+  <div class="out"><pre>[1] "Vuelta número 1"
+[1] "Vuelta número 2"
+[1] "Vuelta número 3"
+[1] "Hola, Ana"
+[1] "Hola, Bruno"
+[1] "Hola, Carla"</pre></div>
+  <p><code>paste()</code> une textos con un espacio. La variable <code>i</code> (o <code>n</code>) toma un valor distinto en cada vuelta.</p>
+  <div class="tip box"><b class="t">En R casi no hacen falta bucles</b><p>Como R opera vectores completos (<code>notas + 1</code>), muchas veces el <code>for</code> no es necesario. En el examen suele bastar con entender cómo funciona.</p></div>
+
+  <h3><span class="step">4</span> Crear tus propias funciones</h3>
+  <div class="idea box"><b class="t">En palabras simples</b><p>Una función es una <b>receta</b>: recibe ingredientes (argumentos), hace algo y devuelve un resultado. Lo último que se calcula dentro es lo que devuelve.</p></div>
+  <div class="code"><pre><code>con_igv &lt;- function(precio, tasa = 0.18) {
+  precio * (1 + tasa)
+}
+con_igv(100)          # usa la tasa por defecto (18%)
+con_igv(100, 0.10)    # cambia la tasa a 10%</code></pre></div>
+  <div class="out"><pre>[1] 118
+[1] 110</pre></div>
+
+  <div class="case"><span class="tag">Caso 🎓</span><h4>Función que califica</h4>
+    <div class="code"><pre><code>calificar &lt;- function(nota) {
+  if (nota &gt;= 17) {
+    "Excelente"
+  } else if (nota &gt;= 11) {
+    "Aprobado"
+  } else {
+    "Desaprobado"
+  }
+}
+calificar(18)
+calificar(12)
+calificar(7)
+sapply(alumnos$nota, calificar)   # aplicarla a cada nota</code></pre></div>
+    <div class="out"><pre>[1] "Excelente"
+[1] "Aprobado"
+[1] "Desaprobado"
+[1] "Excelente"   "Desaprobado" "Aprobado"    "Desaprobado"
+[5] "Excelente"   "Aprobado"    "Aprobado"    "Desaprobado"</pre></div>
+    <p><code>sapply(vector, función)</code> aplica la función a cada elemento, uno por uno.</p>
+  </div>
+
+  <div class="err box"><b class="t">Error típico</b><p><code>the condition has length &gt; 1</code> → usaste <code>if</code> con una columna completa. Para columnas usa <code>ifelse()</code>.</p></div>
+
+  <div class="ex"><span class="tag">✏️ Ejercicio</span>
+    <p>Escribe una función <code>es_par(n)</code> que devuelva <code>TRUE</code> si el número es par. Pista: un número es par si el resto de dividirlo entre 2 es 0.</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>es_par &lt;- function(n) {
+  n %% 2 == 0
+}
+es_par(4)
+es_par(7)</code></pre></div><div class="out"><pre>[1] TRUE
+[1] FALSE</pre></div>
+    </div></details>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <b>🎯 Preguntas tipo examen</b>
+    <div class="q" data-ans="1"><p>Quieres marcar “Alto/Bajo” en toda la columna <code>horas</code>. ¿Qué usas?</p><div class="opts">
+      <button class="opt"><code>if (alumnos$horas &gt; 6) "Alto" else "Bajo"</code></button>
+      <button class="opt"><code>ifelse(alumnos$horas &gt; 6, "Alto", "Bajo")</code></button>
+      <button class="opt"><code>for (alumnos$horas &gt; 6) "Alto"</code></button>
+    </div><div class="fb" data-ok="¡Correcto! ifelse trabaja con vectores completos." data-no="if solo evalúa un valor; para columnas completas se usa ifelse()."></div></div>
+    <div class="q" data-ans="0"><p>Con <code>con_igv &lt;- function(precio, tasa = 0.18)</code>, ¿qué da <code>con_igv(200)</code>?</p><div class="opts">
+      <button class="opt">236</button><button class="opt">200.18</button><button class="opt">Error: falta la tasa</button>
+    </div><div class="fb" data-ok="Bien: 200 × 1.18 = 236. La tasa tiene valor por defecto." data-no="tasa tiene valor por defecto 0.18, así que no da error: 200 × 1.18 = 236."></div></div>
+  </div>
+</section>
+
+<!-- =============================================== 6. NIVEL 4 DPLYR -->
+<section class="cap" data-t="Paquetes, importar datos y dplyr" data-l="Nivel 4">
+  <span class="kicker"><span class="pill">Nivel 4</span> Capítulo 6</span>
+  <h1>Paquetes, importar datos y dplyr</h1>
+  <p class="lead">Trabaja con una base de datos más grande y resúmela con “verbos” fáciles de leer.</p>
+
+  <h3><span class="step">1</span> Paquetes</h3>
+  <div class="idea box"><b class="t">En palabras simples</b><p>Un paquete es una <b>app</b> que le agrega funciones a R. Se <b>instala una sola vez</b> (como descargar la app) y se <b>carga en cada sesión</b> (como abrirla).</p></div>
+  <div class="code"><pre><code>install.packages("dplyr")     # UNA sola vez, con comillas
+install.packages("ggplot2")   # UNA sola vez
+library(dplyr)                # cada vez que abres RStudio, sin comillas
+library(ggplot2)</code></pre></div>
+  <div class="err box"><b class="t">Error típico</b><p><code>could not find function "filter"</code> (o <i>no se pudo encontrar la función</i>) → te olvidaste de <code>library(dplyr)</code>.</p></div>
+
+  <h3><span class="step">2</span> Simular los datos de ventas</h3>
+  <div class="case"><span class="tag">Caso 🛒</span><h4>Bodegas en 3 ciudades</h4>
+    <p>Creamos 120 ventas al azar. La <b>semilla</b> <code>set.seed(123)</code> hace que el “azar” salga siempre igual, así tus resultados coinciden con los de esta guía.</p>
+    <div class="code"><pre><code>set.seed(123)
+n &lt;- 120
+ventas &lt;- data.frame(
+  tienda   = sample(c("Lima", "Arequipa", "Cusco"), n, replace = TRUE),
+  producto = sample(c("Arroz", "Aceite", "Leche", "Pan"), n, replace = TRUE),
+  promo    = sample(c("Si", "No"), n, replace = TRUE),
+  precio   = round(runif(n, min = 2, max = 15), 1)
+)
+# con promoción se venden más unidades (en promedio 8 vs 5)
+ventas$cantidad &lt;- rpois(n, lambda = ifelse(ventas$promo == "Si", 8, 5))
+head(ventas)</code></pre></div>
+    <div class="out"><pre>    tienda producto promo precio cantidad
+1    Cusco      Pan    Si    3.2       13
+2    Cusco   Aceite    Si    4.7        7
+3    Cusco    Leche    Si   14.7        8
+4 Arequipa   Aceite    Si    5.9        4
+5    Cusco    Leche    Si   11.4       11
+6 Arequipa      Pan    No   12.2        4</pre></div>
+    <div class="tbl"><table>
+      <tr><th>Función</th><th>Qué hace</th></tr>
+      <tr><td><code>sample(opciones, n, replace = TRUE)</code></td><td>Elige al azar entre opciones (como sacar papelitos)</td></tr>
+      <tr><td><code>runif(n, min, max)</code></td><td>Números al azar entre un mínimo y un máximo</td></tr>
+      <tr><td><code>rpois(n, lambda)</code></td><td>Conteos al azar alrededor de un promedio</td></tr>
+      <tr><td><code>rnorm(n, media, desv)</code></td><td>Números con forma de campana (distribución normal)</td></tr>
+    </table></div>
+  </div>
+
+  <h3><span class="step">3</span> Importar y exportar archivos</h3>
+  <p>En la vida real los datos vienen de un archivo. Así se guarda y se vuelve a leer un CSV:</p>
+  <div class="code"><pre><code>write.csv(ventas, "ventas.csv", row.names = FALSE)   # guardar
+ventas &lt;- read.csv("ventas.csv")                     # leer
+
+# Excel: install.packages("readxl"); library(readxl)
+# datos &lt;- read_excel("ventas.xlsx")</code></pre></div>
+  <div class="warn box"><b class="t">¿“cannot open file”?</b><p>R busca el archivo en tu <b>carpeta de trabajo</b>. Mírala con <code>getwd()</code>. Lo más fácil: crea un <b>Proyecto</b> (File → New Project) y pon ahí tus archivos.</p></div>
+
+  <h3><span class="step">4</span> Los 5 verbos de dplyr</h3>
+  <div class="tbl"><table>
+    <tr><th>Verbo</th><th>Qué hace</th><th>Pregunta que responde</th></tr>
+    <tr><td><code>filter()</code></td><td>Elige <b>filas</b></td><td>¿Solo las ventas de Lima?</td></tr>
+    <tr><td><code>select()</code></td><td>Elige <b>columnas</b></td><td>¿Solo producto y precio?</td></tr>
+    <tr><td><code>mutate()</code></td><td>Crea o cambia columnas</td><td>¿Cuál es el total de cada venta?</td></tr>
+    <tr><td><code>arrange()</code></td><td>Ordena</td><td>¿Cuáles fueron las ventas más grandes?</td></tr>
+    <tr><td><code>group_by()</code> + <code>summarise()</code></td><td>Resume por grupos</td><td>¿Cuánto vendió cada tienda?</td></tr>
+  </table></div>
+  <div class="idea box"><b class="t">El pipe <code>|&gt;</code></b><p>Pasa el resultado de un paso al siguiente. Léelo como <b>“y luego”</b>: “toma ventas, <i>y luego</i> filtra Lima, <i>y luego</i> muestra 3 filas”. (También verás <code>%&gt;%</code>, que hace lo mismo.)</p></div>
+
+  <div class="code"><pre><code>ventas |&gt;
+  filter(tienda == "Lima") |&gt;
+  head(3)
+
+ventas |&gt;
+  select(producto, precio) |&gt;
+  head(3)</code></pre></div>
+  <div class="out"><pre>  tienda producto promo precio cantidad
+1   Lima    Leche    Si    3.3       10
+2   Lima    Leche    No   14.8        4
+3   Lima   Aceite    Si    9.5        3
+  producto precio
+1      Pan    3.2
+2   Aceite    4.7
+3    Leche   14.7</pre></div>
+
+  <div class="code"><pre><code>ventas &lt;- ventas |&gt;
+  mutate(total = precio * cantidad)   # nueva columna
+
+ventas |&gt;
+  arrange(desc(total)) |&gt;              # desc() = de mayor a menor
+  head(3)</code></pre></div>
+  <div class="out"><pre>    tienda producto promo precio cantidad total
+1     Lima      Pan    Si   15.0       11 165.0
+2    Cusco      Pan    Si   14.7       11 161.7
+3 Arequipa   Aceite    Si   10.9       14 152.6</pre></div>
+
+  <h3><span class="step">5</span> Resumir por grupos (¡lo más preguntado!)</h3>
+  <div class="code"><pre><code>ventas |&gt;
+  group_by(tienda) |&gt;
+  summarise(n_ventas = n(),
+            ingreso  = sum(total),
+            promedio = mean(total))</code></pre></div>
+  <div class="out"><pre># A tibble: 3 × 4
+  tienda   n_ventas ingreso promedio
+  &lt;chr&gt;       &lt;int&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+1 Arequipa       44   2513.     57.1
+2 Cusco          40   2378.     59.5
+3 Lima           36   1947      54.1</pre></div>
+  <p>Un <i>tibble</i> es un data frame con mejor presentación. <code>n()</code> cuenta filas de cada grupo.</p>
+
+  <div class="code"><pre><code># ¿Qué producto genera más ingreso cuando hay promoción?
+ventas |&gt;
+  filter(promo == "Si") |&gt;
+  group_by(producto) |&gt;
+  summarise(ingreso = sum(total)) |&gt;
+  arrange(desc(ingreso))
+
+# Atajo para contar combinaciones
+ventas |&gt; count(tienda, promo)</code></pre></div>
+  <div class="out"><pre># A tibble: 4 × 2
+  producto ingreso
+  &lt;chr&gt;      &lt;dbl&gt;
+1 Pan        1634.
+2 Aceite     1167.
+3 Leche       994.
+4 Arroz       915.
+    tienda promo  n
+1 Arequipa    No 19
+2 Arequipa    Si 25
+3    Cusco    No 14
+4    Cusco    Si 26
+5     Lima    No 17
+6     Lima    Si 19</pre></div>
+
+  <div class="exam box"><b class="t">Para leer cualquier código dplyr en el examen</b><p>Tradúcelo en voz alta: “Toma <i>ventas</i>, <b>y luego</b> filtra promo Sí, <b>y luego</b> agrupa por producto, <b>y luego</b> suma el total, <b>y luego</b> ordena de mayor a menor”.</p></div>
+
+  <div class="ex"><span class="tag">✏️ Ejercicio</span>
+    <p>¿Cuántas ventas hubo en <b>Cusco</b> <b>con</b> promoción? Usa <code>filter()</code> con dos condiciones separadas por coma y luego <code>nrow()</code>.</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>ventas |&gt;
+  filter(tienda == "Cusco", promo == "Si") |&gt;
+  nrow()</code></pre></div><div class="out"><pre>[1] 26</pre></div>
+      <p>Coincide con la tabla de <code>count()</code>: Cusco / Si / 26.</p>
+    </div></details>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <b>🎯 Preguntas tipo examen</b>
+    <div class="q" data-ans="2"><p>Quieres quedarte solo con las columnas <code>tienda</code> y <code>total</code>. ¿Qué verbo usas?</p><div class="opts">
+      <button class="opt"><code>filter()</code></button><button class="opt"><code>mutate()</code></button><button class="opt"><code>select()</code></button>
+    </div><div class="fb" data-ok="¡Correcto! select elige columnas; filter elige filas." data-no="filter elige FILAS; para COLUMNAS se usa select()."></div></div>
+    <div class="q" data-ans="0"><p>¿Cada cuánto se ejecuta <code>install.packages("dplyr")</code>?</p><div class="opts">
+      <button class="opt">Una sola vez en tu computadora</button><button class="opt">Cada vez que abres RStudio</button><button class="opt">Antes de cada función de dplyr</button>
+    </div><div class="fb" data-ok="Exacto: se instala una vez; library() se usa en cada sesión." data-no="Instalar es una vez. Lo que se repite en cada sesión es library(dplyr)."></div></div>
+  </div>
+</section>
+
+<!-- =============================================== 7. GGPLOT -->
+<section class="cap" data-t="Gráficos con ggplot2" data-l="Nivel 4">
+  <span class="kicker"><span class="pill">Nivel 4</span> Capítulo 7</span>
+  <h1>Gráficos con ggplot2</h1>
+  <p class="lead">Convierte tus tablas en gráficos claros, capa por capa.</p>
+
+  <div class="idea box"><b class="t">La receta de todo gráfico</b><p><b>ggplot(datos, aes(x, y))</b> = el lienzo y qué va en cada eje<br><b>+ geom_…()</b> = el tipo de dibujo (barras, puntos…)<br><b>+ labs()</b> y <b>+ theme_…()</b> = títulos y estilo.<br>Las capas se suman con <code>+</code>, al final de cada línea.</p></div>
+
+  <div class="tbl"><table>
+    <tr><th>Geometría</th><th>Gráfico</th><th>Úsalo para…</th></tr>
+    <tr><td><code>geom_col()</code></td><td>Barras</td><td>Comparar cantidades entre grupos</td></tr>
+    <tr><td><code>geom_histogram()</code></td><td>Histograma</td><td>Ver cómo se reparte una variable numérica</td></tr>
+    <tr><td><code>geom_boxplot()</code></td><td>Caja y bigotes</td><td>Comparar distribuciones entre grupos</td></tr>
+    <tr><td><code>geom_point()</code></td><td>Dispersión</td><td>Relación entre dos variables numéricas</td></tr>
+    <tr><td><code>geom_line()</code></td><td>Líneas</td><td>Evolución en el tiempo</td></tr>
+  </table></div>
+
+  <h3><span class="step">1</span> Barras: ingreso por tienda</h3>
+  <div class="code"><pre><code>resumen &lt;- ventas |&gt;
+  group_by(tienda) |&gt;
+  summarise(ingreso = sum(total))
+
+ggplot(resumen, aes(x = tienda, y = ingreso)) +
+  geom_col(fill = "#276dc3") +
+  labs(title = "Ingreso total por tienda", x = "Tienda", y = "Soles") +
+  theme_minimal()</code></pre></div>
+  <figure><img src="img/barras_tiendas.png" alt="Gráfico de barras: Arequipa tiene el mayor ingreso, seguido de Cusco y Lima" loading="lazy"><figcaption>Arequipa lidera en ingresos; Lima queda última.</figcaption></figure>
+
+  <h3><span class="step">2</span> Histograma: ¿cuánto se vende por ticket?</h3>
+  <div class="code"><pre><code>ggplot(ventas, aes(x = total)) +
+  geom_histogram(bins = 12, fill = "#276dc3", color = "white") +
+  labs(title = "¿Cuánto se vende por ticket?", x = "Total (S/)", y = "Frecuencia") +
+  theme_minimal()</code></pre></div>
+  <figure><img src="img/histograma_tickets.png" alt="Histograma de los totales de venta, concentrados entre 20 y 80 soles" loading="lazy"><figcaption>La mayoría de tickets son de montos bajos o medios; pocos superan S/ 120.</figcaption></figure>
+  <p>Fíjate que en el histograma solo va <code>x</code>: el eje <code>y</code> (frecuencia) lo calcula R.</p>
+
+  <h3><span class="step">3</span> Boxplot: ¿la promoción vende más?</h3>
+  <div class="code"><pre><code>ggplot(ventas, aes(x = promo, y = cantidad, fill = promo)) +
+  geom_boxplot() +
+  labs(title = "Unidades vendidas con y sin promoción",
+       x = "¿Hubo promo?", y = "Unidades") +
+  theme_minimal() +
+  theme(legend.position = "none")</code></pre></div>
+  <figure><img src="img/boxplot_promo.png" alt="Boxplot: con promoción la mediana es 8 unidades y sin promoción 5" loading="lazy"><figcaption>La línea gruesa es la mediana: con promo ≈ 8 unidades, sin promo ≈ 5.</figcaption></figure>
+  <div class="tip box"><b class="t">Cómo leer un boxplot</b><p>La <b>línea del medio</b> es la mediana. La <b>caja</b> contiene el 50% central de los datos. Los <b>bigotes</b> llegan hasta los valores típicos más extremos; los puntos sueltos serían valores atípicos.</p></div>
+
+  <h3><span class="step">4</span> Guardar el gráfico</h3>
+  <div class="code"><pre><code>ggsave("grafico_tiendas.png", width = 7, height = 5)   # guarda el último gráfico</code></pre></div>
+
+  <div class="err box"><b class="t">Error típico</b><p>Poner el <code>+</code> al <b>inicio</b> de la línea siguiente. R cree que el gráfico terminó. El <code>+</code> siempre va al <b>final</b> de la línea.</p></div>
+
+  <div class="ex"><span class="tag">✏️ Ejercicio</span>
+    <p>Haz un gráfico de barras que muestre cuántas ventas hubo de cada <b>producto</b>. Pista: con <code>geom_bar()</code> R cuenta solo, así que únicamente necesitas <code>x</code>.</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>ggplot(ventas, aes(x = producto)) +
+  geom_bar(fill = "#276dc3") +
+  labs(title = "Ventas por producto", x = "Producto", y = "Número de ventas") +
+  theme_minimal()</code></pre></div>
+      <p><code>geom_bar()</code> cuenta filas; <code>geom_col()</code> usa una columna <code>y</code> que tú ya calculaste.</p>
+    </div></details>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <b>🎯 Preguntas tipo examen</b>
+    <div class="q" data-ans="1"><p>Quieres ver la relación entre horas de estudio y nota. ¿Qué geometría usas?</p><div class="opts">
+      <button class="opt"><code>geom_col()</code></button><button class="opt"><code>geom_point()</code></button><button class="opt"><code>geom_histogram()</code></button>
+    </div><div class="fb" data-ok="¡Bien! Dos variables numéricas → dispersión (puntos)." data-no="Para relacionar dos variables numéricas se usa geom_point() (dispersión)."></div></div>
+    <div class="q" data-ans="2"><p>¿Qué va dentro de <code>aes()</code>?</p><div class="opts">
+      <button class="opt">El título del gráfico</button><button class="opt">El nombre del archivo a guardar</button><button class="opt">Qué columna va en cada eje (y en el color)</button>
+    </div><div class="fb" data-ok="Correcto: aes() conecta columnas con partes del gráfico." data-no="aes() (estética) dice qué columna va en x, y, color, etc. El título va en labs()."></div></div>
+  </div>
+</section>
+
+<!-- =============================================== 8. ESTADÍSTICA -->
+<section class="cap" data-t="Estadística básica" data-l="Nivel 4.5">
+  <span class="kicker"><span class="pill">Nivel 4.5</span> Capítulo 8</span>
+  <h1>Estadística básica</h1>
+  <p class="lead">Describe tus datos, maneja valores faltantes, compara grupos y haz tu primera regresión. Aquí lo clave es <b>interpretar</b>.</p>
+
+  <div class="case"><span class="tag">Caso 📚</span><h4>¿Estudiar más sube la nota?</h4>
+    <p>Simulamos 50 estudiantes: horas de estudio (0 a 12) y su nota. Por construcción, cada hora suma aproximadamente 1 punto, con algo de “ruido”.</p>
+    <div class="code"><pre><code>set.seed(42)
+estudio &lt;- data.frame(horas = round(runif(50, 0, 12), 1))
+estudio$nota &lt;- round(6 + 1 * estudio$horas + rnorm(50, 0, 1.5))
+estudio$nota &lt;- pmin(estudio$nota, 20)   # la nota máxima es 20
+head(estudio)</code></pre></div>
+    <div class="out"><pre>  horas nota
+1  11.0   16
+2  11.2   17
+3   3.4    7
+4  10.0   17
+5   7.7   13
+6   6.2   13</pre></div>
+  </div>
+
+  <h3><span class="step">1</span> Estadística descriptiva</h3>
+  <div class="code"><pre><code>mean(estudio$nota)      # media (promedio)
+median(estudio$nota)    # mediana (el valor del medio)
+sd(estudio$nota)        # desviación estándar (cuánto varían)
+quantile(estudio$nota)  # cuartiles</code></pre></div>
+  <div class="out"><pre>[1] 13.12
+[1] 13
+[1] 3.936434
+   0%   25%   50%   75%  100%
+ 5.00 10.25 13.00 16.00 20.00 </pre></div>
+  <div class="tbl"><table>
+    <tr><th>Medida</th><th>Qué significa aquí</th></tr>
+    <tr><td>Media 13.12</td><td>En promedio, los alumnos sacaron 13.1</td></tr>
+    <tr><td>Mediana 13</td><td>La mitad sacó 13 o menos; la otra mitad, 13 o más</td></tr>
+    <tr><td>Desv. estándar 3.94</td><td>Las notas suelen alejarse unos 4 puntos del promedio</td></tr>
+    <tr><td>Cuartil 25% = 10.25</td><td>El 25% de alumnos sacó 10.25 o menos</td></tr>
+  </table></div>
+  <div class="tip box"><b class="t">Atajo</b><p><code>summary(estudio$nota)</code> te da mínimo, cuartiles, mediana, media y máximo de una sola vez.</p></div>
+
+  <h3><span class="step">2</span> Datos faltantes (NA)</h3>
+  <p><code>NA</code> significa “no hay dato” (por ejemplo, un alumno que faltó al examen).</p>
+  <div class="code"><pre><code>v &lt;- c(15, NA, 12, 18)
+mean(v)                  # ¡da NA!
+mean(v, na.rm = TRUE)    # ignora los NA
+is.na(v)                 # ¿dónde hay NA?
+sum(is.na(v))            # cuántos NA hay</code></pre></div>
+  <div class="out"><pre>[1] NA
+[1] 15
+[1] FALSE  TRUE FALSE FALSE
+[1] 1</pre></div>
+  <div class="exam box"><b class="t">Sale casi siempre</b><p>Si un cálculo te devuelve <code>NA</code>, la respuesta es agregar <code>na.rm = TRUE</code> (“NA remove”).</p></div>
+
+  <h3><span class="step">3</span> Correlación</h3>
+  <div class="code"><pre><code>cor(estudio$horas, estudio$nota)</code></pre></div>
+  <div class="out"><pre>[1] 0.9269005</pre></div>
+  <div class="tbl"><table>
+    <tr><th>Valor de r</th><th>Interpretación</th></tr>
+    <tr><td>cerca de +1</td><td>Fuerte y positiva: si una sube, la otra también</td></tr>
+    <tr><td>cerca de 0</td><td>No hay relación lineal</td></tr>
+    <tr><td>cerca de −1</td><td>Fuerte y negativa: si una sube, la otra baja</td></tr>
+  </table></div>
+  <p><b>Aquí:</b> r = 0.93 → relación positiva muy fuerte entre horas de estudio y nota.</p>
+  <div class="warn box"><b class="t">Correlación no es causalidad</b><p>Que dos cosas se muevan juntas no prueba que una cause la otra. En este caso lo sabemos solo porque nosotros simulamos los datos así.</p></div>
+
+  <h3><span class="step">4</span> Prueba t: ¿dos grupos son diferentes?</h3>
+  <p>Volvemos a las bodegas: ¿con promoción se venden más unidades, o la diferencia es casualidad?</p>
+  <div class="code"><pre><code>t.test(cantidad ~ promo, data = ventas)</code></pre></div>
+  <div class="out"><pre>	Welch Two Sample t-test
+
+data:  cantidad by promo
+t = -6.0687, df = 114.15, p-value = 1.724e-08
+alternative hypothesis: true difference in means between group No and group Si is not equal to 0
+95 percent confidence interval:
+ -3.918640 -1.989931
+sample estimates:
+mean in group No mean in group Si
+        5.260000         8.214286 </pre></div>
+  <div class="idea box"><b class="t">Cómo leer el p-valor</b><p><b>p &lt; 0.05</b> → la diferencia es <b>estadísticamente significativa</b> (difícil que sea casualidad).<br><b>p ≥ 0.05</b> → no hay evidencia suficiente de diferencia.<br><br>Aquí p = 1.724e-08 = 0.00000001724 (muchísimo menor que 0.05). <b>Conclusión:</b> con promoción se venden en promedio 8.2 unidades frente a 5.3 sin promoción, y esa diferencia es significativa.</p></div>
+  <div class="tip box"><b class="t">Notación científica</b><p><code>1.724e-08</code> significa 1.724 × 10⁻⁸: mueve la coma 8 lugares a la izquierda. Si ves <code>e-</code> con un número grande, el valor es casi cero.</p></div>
+
+  <h3><span class="step">5</span> Regresión lineal simple</h3>
+  <p>La regresión encuentra la <b>recta</b> que mejor resume la relación: <code>nota = intercepto + pendiente × horas</code>. En R se escribe <code>lm(y ~ x)</code>, que se lee “y explicada por x”.</p>
+  <div class="code"><pre><code>modelo &lt;- lm(nota ~ horas, data = estudio)
+summary(modelo)</code></pre></div>
+  <div class="out"><pre>Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)
+(Intercept)  5.93024    0.47024   12.61   &lt;2e-16 ***
+horas        1.00024    0.05846   17.11   &lt;2e-16 ***
+---
+Residual standard error: 1.493 on 48 degrees of freedom
+Multiple R-squared:  0.8591,	Adjusted R-squared:  0.8562
+F-statistic: 292.8 on 1 and 48 DF,  p-value: &lt; 2.2e-16</pre></div>
+
+  <div class="tbl"><table>
+    <tr><th>Dato</th><th>Valor</th><th>Interpretación para el examen</th></tr>
+    <tr><td>Intercepto</td><td>5.93</td><td>Nota esperada de alguien que estudia 0 horas</td></tr>
+    <tr><td>Pendiente (horas)</td><td>1.00</td><td>Por cada hora extra de estudio, la nota sube ~1 punto</td></tr>
+    <tr><td>Pr(&gt;|t|) de horas</td><td>&lt; 2e-16</td><td>Menor a 0.05 → las horas influyen significativamente</td></tr>
+    <tr><td>R-squared</td><td>0.86</td><td>Las horas explican el 86% de la variación de las notas</td></tr>
+  </table></div>
+
+  <div class="code"><pre><code># ¿Qué nota se espera con 8 horas de estudio?
+predict(modelo, newdata = data.frame(horas = 8))</code></pre></div>
+  <div class="out"><pre>      1
+13.9322 </pre></div>
+  <p>Comprobación a mano: 5.93 + 1.00 × 8 ≈ 13.93 ✔️</p>
+
+  <div class="code"><pre><code>ggplot(estudio, aes(x = horas, y = nota)) +
+  geom_point(color = "#276dc3", size = 2.5) +
+  geom_smooth(method = "lm", color = "#e0633a") +
+  labs(title = "Más horas de estudio, mejor nota",
+       x = "Horas de estudio", y = "Nota") +
+  theme_minimal()</code></pre></div>
+  <figure><img src="img/regresion_estudio.png" alt="Dispersión de horas vs nota con recta de regresión ascendente" loading="lazy"><figcaption>Cada punto es un alumno; la recta naranja es el modelo y la franja gris, su margen de incertidumbre.</figcaption></figure>
+
+  <div class="ex"><span class="tag">✏️ Ejercicio</span>
+    <p>Usando el modelo, ¿qué nota se espera para alguien que estudia <b>10 horas</b>? Hazlo con <code>predict()</code> y compruébalo a mano.</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>predict(modelo, newdata = data.frame(horas = 10))</code></pre></div>
+      <p>A mano: 5.93024 + 1.00024 × 10 = <b>15.93</b>.</p>
+    </div></details>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <b>🎯 Preguntas tipo examen</b>
+    <div class="q" data-ans="1"><p>Una prueba t da <code>p-value = 0.32</code>. ¿Qué concluyes?</p><div class="opts">
+      <button class="opt">Los grupos son significativamente distintos</button><button class="opt">No hay evidencia suficiente de diferencia entre grupos</button><button class="opt">El 32% de los datos es diferente</button>
+    </div><div class="fb" data-ok="¡Correcto! 0.32 ≥ 0.05 → no significativo." data-no="Regla: p < 0.05 es significativo. 0.32 es mayor, así que no hay evidencia de diferencia."></div></div>
+    <div class="q" data-ans="0"><p>En <code>lm(nota ~ horas)</code>, la pendiente es 1.00. ¿Qué significa?</p><div class="opts">
+      <button class="opt">Cada hora extra sube la nota en ~1 punto</button><button class="opt">La correlación es 1</button><button class="opt">Todos los alumnos estudiaron 1 hora</button>
+    </div><div class="fb" data-ok="Exacto: la pendiente es el cambio en y por cada unidad de x." data-no="La pendiente dice cuánto cambia la nota (y) por cada hora (x) adicional."></div></div>
+    <div class="q" data-ans="2"><p><code>mean(c(10, NA, 14))</code> devuelve NA. ¿Cómo lo arreglas?</p><div class="opts">
+      <button class="opt"><code>mean(c(10, 0, 14))</code></button><button class="opt"><code>mean(c(10, NA, 14), NA = FALSE)</code></button><button class="opt"><code>mean(c(10, NA, 14), na.rm = TRUE)</code></button>
+    </div><div class="fb" data-ok="¡Bien! na.rm = TRUE ignora los faltantes (resultado: 12)." data-no="Cambiar NA por 0 altera el promedio. Lo correcto es na.rm = TRUE."></div></div>
+  </div>
+</section>
+
+<!-- =============================================== 9. SIMULACRO -->
+<section class="cap" data-t="Simulacro de examen" data-l="Práctica final">
+  <span class="kicker"><span class="pill">Práctica</span> Capítulo 9</span>
+  <h1>Simulacro de examen</h1>
+  <p class="lead">Seis preguntas como las de un examen real, usando los casos de la guía. Intenta resolverlas en RStudio <b>antes</b> de abrir la solución.</p>
+
+  <div class="warn box"><b class="t">Antes de empezar</b><p>Ejecuta los bloques que crean <code>alumnos</code> (cap. 4), <code>ventas</code> con la columna <code>total</code> (cap. 6) y <code>estudio</code> (cap. 8). O abre <code>codigo/guia_completa.R</code> y ejecútalo completo con <code>Ctrl + Shift + Enter</code>.</p></div>
+
+  <div class="ex"><span class="tag">Pregunta 1 · 2 puntos</span>
+    <p>En la tabla <code>alumnos</code>, ¿cuántos aprobaron (nota ≥ 11)?</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>sum(alumnos$nota &gt;= 11)</code></pre></div><div class="out"><pre>[1] 5</pre></div>
+      <p><b>Respuesta:</b> 5 alumnos (Ana, Carla, Elena, Fabio y Gina).</p>
+    </div></details>
+  </div>
+
+  <div class="ex"><span class="tag">Pregunta 2 · 3 puntos</span>
+    <p>¿Cuál es la nota promedio de cada sección? ¿Qué sección rindió mejor?</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code># Opción con R base
+tapply(alumnos$nota, alumnos$seccion, mean)
+
+# Opción con dplyr
+alumnos |&gt;
+  group_by(seccion) |&gt;
+  summarise(promedio = mean(nota))</code></pre></div><div class="out"><pre>   A    B
+15.5 11.0 </pre></div>
+      <p><b>Respuesta:</b> la sección A (15.5) rindió mejor que la B (11.0).</p>
+    </div></details>
+  </div>
+
+  <div class="ex"><span class="tag">Pregunta 3 · 3 puntos</span>
+    <p>En <code>ventas</code>, ¿qué tienda generó más ingreso total y cuánto?</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>ventas |&gt;
+  group_by(tienda) |&gt;
+  summarise(ingreso = sum(total)) |&gt;
+  arrange(desc(ingreso))</code></pre></div>
+      <p><b>Respuesta:</b> Arequipa, con S/ 2513.40 (le siguen Cusco con S/ 2378.30 y Lima con S/ 1947.00).</p>
+    </div></details>
+  </div>
+
+  <div class="ex"><span class="tag">Pregunta 4 · 4 puntos</span>
+    <p>¿La promoción aumenta significativamente las unidades vendidas? Justifica con una prueba estadística.</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>t.test(cantidad ~ promo, data = ventas)</code></pre></div>
+      <p><b>Respuesta:</b> Sí. El p-valor es 1.7 × 10⁻⁸, menor que 0.05. Con promoción se venden en promedio 8.21 unidades y sin ella 5.26: la diferencia es estadísticamente significativa.</p>
+    </div></details>
+  </div>
+
+  <div class="ex"><span class="tag">Pregunta 5 · 4 puntos</span>
+    <p>En <code>estudio</code>, calcula e interpreta la correlación entre horas y nota.</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>cor(estudio$horas, estudio$nota)</code></pre></div><div class="out"><pre>[1] 0.9269005</pre></div>
+      <p><b>Respuesta:</b> r ≈ 0.93: relación lineal positiva y muy fuerte. A más horas de estudio, mayor nota.</p>
+    </div></details>
+  </div>
+
+  <div class="ex"><span class="tag">Pregunta 6 · 4 puntos</span>
+    <p>Ajusta una regresión de nota según horas. Interpreta la pendiente y el R² y predice la nota con 8 horas.</p>
+    <details><summary>Ver solución</summary><div>
+      <div class="code"><pre><code>modelo &lt;- lm(nota ~ horas, data = estudio)
+summary(modelo)
+predict(modelo, newdata = data.frame(horas = 8))</code></pre></div>
+      <p><b>Respuesta:</b></p>
+      <ul>
+        <li><b>Pendiente 1.00:</b> cada hora adicional de estudio aumenta la nota en aproximadamente 1 punto (p &lt; 0.05, significativo).</li>
+        <li><b>R² = 0.86:</b> las horas explican el 86% de la variación en las notas.</li>
+        <li><b>Predicción con 8 horas:</b> 13.93.</li>
+      </ul>
+    </div></details>
+  </div>
+
+  <div class="exam box"><b class="t">Cómo responder para sacar puntaje completo</b><p>1) Muestra el <b>código</b>. 2) Copia el <b>número</b> clave del resultado. 3) Escribe una <b>frase de interpretación</b> en palabras normales (“con promoción se vende más…”). Muchos pierden puntos por quedarse solo en el número.</p></div>
+</section>
+
+<!-- =============================================== 10. CHULETA -->
+<section class="cap" data-t="Chuleta final" data-l="Repaso rápido">
+  <span class="kicker"><span class="pill">Repaso</span> Capítulo 10</span>
+  <h1>Chuleta final</h1>
+  <p class="lead">Todo lo esencial en una sola pantalla para el repaso de última hora. Puedes imprimirla.</p>
+
+  <div class="cheat">
+    <div class="tile"><h4>🧮 Básico</h4><div class="tbl"><table>
+      <tr><td><code>x &lt;- 5</code></td><td>guardar</td></tr>
+      <tr><td><code>%%</code></td><td>resto</td></tr>
+      <tr><td><code>==</code> / <code>!=</code></td><td>igual / distinto</td></tr>
+      <tr><td><code>&amp;</code> / <code>|</code></td><td>y / o</td></tr>
+      <tr><td><code>class(x)</code></td><td>tipo de dato</td></tr>
+      <tr><td><code>round(x, 2)</code></td><td>redondear</td></tr>
+    </table></div></div>
+    <div class="tile"><h4>📦 Vectores</h4><div class="tbl"><table>
+      <tr><td><code>c(1, 2, 3)</code></td><td>crear</td></tr>
+      <tr><td><code>x[2]</code></td><td>elemento 2</td></tr>
+      <tr><td><code>x[x &gt; 10]</code></td><td>filtrar</td></tr>
+      <tr><td><code>sum(x &gt; 10)</code></td><td>contar</td></tr>
+      <tr><td><code>length(x)</code></td><td>cuántos</td></tr>
+      <tr><td><code>table(x)</code></td><td>frecuencias</td></tr>
+    </table></div></div>
+    <div class="tile"><h4>🗂️ Data frames</h4><div class="tbl"><table>
+      <tr><td><code>df[filas, cols]</code></td><td>regla de oro</td></tr>
+      <tr><td><code>df$col</code></td><td>una columna</td></tr>
+      <tr><td><code>str(df)</code></td><td>estructura</td></tr>
+      <tr><td><code>summary(df)</code></td><td>resumen</td></tr>
+      <tr><td><code>nrow</code> / <code>ncol</code></td><td>filas / cols</td></tr>
+      <tr><td><code>df[order(-df$x), ]</code></td><td>ordenar desc.</td></tr>
+    </table></div></div>
+    <div class="tile"><h4>🔁 Control</h4><div class="tbl"><table>
+      <tr><td><code>if (c) {} else {}</code></td><td>un valor</td></tr>
+      <tr><td><code>ifelse(c, a, b)</code></td><td>toda una columna</td></tr>
+      <tr><td><code>for (i in 1:n) {}</code></td><td>repetir</td></tr>
+      <tr><td><code>function(x) {}</code></td><td>crear función</td></tr>
+      <tr><td><code>sapply(x, f)</code></td><td>aplicar a cada uno</td></tr>
+    </table></div></div>
+    <div class="tile"><h4>🛠️ dplyr</h4><div class="tbl"><table>
+      <tr><td><code>filter()</code></td><td>filas</td></tr>
+      <tr><td><code>select()</code></td><td>columnas</td></tr>
+      <tr><td><code>mutate()</code></td><td>nueva columna</td></tr>
+      <tr><td><code>arrange(desc())</code></td><td>ordenar</td></tr>
+      <tr><td><code>group_by() |&gt; summarise()</code></td><td>resumir</td></tr>
+      <tr><td><code>count()</code></td><td>contar grupos</td></tr>
+    </table></div></div>
+    <div class="tile"><h4>📊 ggplot2</h4><div class="tbl"><table>
+      <tr><td><code>ggplot(df, aes(x, y))</code></td><td>lienzo</td></tr>
+      <tr><td><code>geom_col / geom_bar</code></td><td>barras</td></tr>
+      <tr><td><code>geom_histogram</code></td><td>histograma</td></tr>
+      <tr><td><code>geom_boxplot</code></td><td>cajas</td></tr>
+      <tr><td><code>geom_point</code></td><td>dispersión</td></tr>
+      <tr><td><code>labs() + theme_minimal()</code></td><td>títulos y estilo</td></tr>
+    </table></div></div>
+    <div class="tile"><h4>📈 Estadística</h4><div class="tbl"><table>
+      <tr><td><code>mean / median / sd</code></td><td>descriptivos</td></tr>
+      <tr><td><code>na.rm = TRUE</code></td><td>ignorar NA</td></tr>
+      <tr><td><code>cor(x, y)</code></td><td>correlación (−1 a 1)</td></tr>
+      <tr><td><code>t.test(y ~ g, data)</code></td><td>comparar 2 grupos</td></tr>
+      <tr><td><code>lm(y ~ x, data)</code></td><td>regresión</td></tr>
+      <tr><td><code>predict(m, newdata)</code></td><td>predecir</td></tr>
+    </table></div></div>
+    <div class="tile"><h4>🎯 Interpretar</h4><div class="tbl"><table>
+      <tr><td>p &lt; 0.05</td><td>significativo</td></tr>
+      <tr><td>p ≥ 0.05</td><td>no significativo</td></tr>
+      <tr><td>r ≈ ±1</td><td>relación fuerte</td></tr>
+      <tr><td>r ≈ 0</td><td>sin relación lineal</td></tr>
+      <tr><td>pendiente</td><td>cambio de y por cada 1 de x</td></tr>
+      <tr><td>R²</td><td>% de variación explicada</td></tr>
+    </table></div></div>
+    <div class="tile"><h4>🐞 Errores frecuentes</h4><div class="tbl"><table>
+      <tr><td><code>object not found</code></td><td>nombre mal escrito o no ejecutado</td></tr>
+      <tr><td><code>could not find function</code></td><td>falta <code>library()</code></td></tr>
+      <tr><td><code>+</code> en consola</td><td>falta cerrar <code>)</code> o <code>"</code> → Esc</td></tr>
+      <tr><td><code>undefined columns</code></td><td>falta la coma en <code>df[ , ]</code></td></tr>
+      <tr><td><code>cannot open file</code></td><td>revisa <code>getwd()</code></td></tr>
+    </table></div></div>
+  </div>
+
+  <div class="tip box" style="margin-top:28px"><b class="t">¿Qué sigue después del examen? (nivel 5)</b><p>Reportes con Quarto o R Markdown, apps con Shiny, regresión múltiple y logística, y paquetes como <code>lubridate</code> (fechas) y <code>stringr</code> (texto).</p></div>
+  <p style="text-align:center;font-size:18px;margin-top:30px"><b>🎉 ¡Terminaste la guía! Mucha suerte en el examen.</b></p>
+</section>
+
+<div class="pn">
+  <button class="btn sec" id="prevBtn">← Anterior</button>
+  <button class="btn" id="nextBtn">Siguiente →</button>
+</div>
+
+</div></main>
+</div>
+
+<script>
+(function(){
+  const caps=[...document.querySelectorAll('section.cap')];
+  const navList=document.getElementById('navList'), nav=document.getElementById('nav'), scrim=document.getElementById('scrim');
+  const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+  let done=new Set(JSON.parse(store.get('rdc-done')||'[]'));
+  let cur=0;
+
+  /* ---- índice lateral y ruta ---- */
+  const road=document.getElementById('roadmap');
+  caps.forEach((c,i)=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<a href="#cap-${i}" data-i="${i}"><span class="num">${i}</span><span>${c.dataset.t}<span class="lv">${c.dataset.l}</span></span></a>`;
+    navList.appendChild(li);
+    if(i>0){const a=document.createElement('a');a.href='#cap-'+i;a.innerHTML=`<span class="num">${i}</span><span><b>${c.dataset.t}</b><small>${c.dataset.l}</small></span>`;road.appendChild(a);}
+  });
+
+  function refreshNav(){
+    navList.querySelectorAll('a').forEach(a=>{const i=+a.dataset.i;a.classList.toggle('on',i===cur);a.classList.toggle('done',done.has(i)&&i!==cur)});
+    const pct=Math.round(done.size/caps.length*100);
+    document.getElementById('progTxt').textContent=`${done.size} de ${caps.length} capítulos estudiados`;
+    document.getElementById('progBar').style.width=pct+'%';
+    document.getElementById('topProg').style.width=Math.round((cur+1)/caps.length*100)+'%';
+  }
+
+  function go(i,push){
+    i=Math.max(0,Math.min(caps.length-1,i));
+    if(cur!==i) {done.add(cur);store.set('rdc-done',JSON.stringify([...done]));}
+    cur=i;
+    caps.forEach((c,j)=>c.classList.toggle('on',j===i));
+    document.getElementById('prevBtn').disabled=i===0;
+    const nb=document.getElementById('nextBtn');
+    if(i===caps.length-1){nb.textContent='✓ Marcar como terminado';nb.classList.add('done');}
+    else{nb.textContent='Siguiente →';nb.classList.remove('done');}
+    document.getElementById('topTitle').textContent=i===0?'R desde cero':`${i}. ${caps[i].dataset.t}`;
+    store.set('rdc-cap',i);
+    if(push!==false) history.replaceState(null,'','#cap-'+i);
+    refreshNav(); closeNav(); window.scrollTo(0,0);
+  }
+  document.getElementById('prevBtn').onclick=()=>go(cur-1);
+  document.getElementById('nextBtn').onclick=()=>{ if(cur===caps.length-1){done.add(cur);store.set('rdc-done',JSON.stringify([...done]));refreshNav();} else go(cur+1); };
+  document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#cap-"]');if(a){e.preventDefault();go(+a.getAttribute('href').slice(5));}});
+  window.addEventListener('hashchange',()=>{const m=location.hash.match(/cap-(\d+)/);if(m)go(+m[1],false)});
+
+  /* ---- menú móvil ---- */
+  function closeNav(){nav.classList.remove('open');scrim.classList.remove('open')}
+  document.getElementById('menuBtn').onclick=()=>{nav.classList.add('open');scrim.classList.add('open')};
+  scrim.onclick=closeNav;
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNav()});
+
+  /* ---- tema claro/oscuro ---- */
+  const root=document.documentElement, saved=store.get('rdc-theme');
+  if(saved) root.dataset.theme=saved;
+  function toggleTheme(){
+    const dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme=dark?'light':'dark'; store.set('rdc-theme',root.dataset.theme);
+  }
+  document.getElementById('themeBtn').onclick=toggleTheme;
+  document.getElementById('themeBtnTop').onclick=toggleTheme;
+
+  /* ---- resaltado de código + botón copiar ---- */
+  const RX=/(#.*$)|("(?:[^"\\]|\\.)*")|\b(function|if|else|for|in|TRUE|FALSE|NA|library|return)\b|(\b\d+(?:\.\d+)?L?\b)/gm;
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  document.querySelectorAll('.code pre code').forEach(el=>{
+    const src=el.textContent; let out='',last=0;
+    src.replace(RX,(m,cm,st,kw,nu,idx)=>{
+      out+=esc(src.slice(last,idx));
+      const cls=cm?'c-cm':st?'c-st':kw?'c-kw':'c-nu';
+      out+=`<span class="${cls}">${esc(m)}</span>`; last=idx+m.length; return m;
+    });
+    el.innerHTML=out+esc(src.slice(last));
+    const box=el.closest('.code'), lbl=document.createElement('div');
+    lbl.className='lbl'; lbl.innerHTML='<span>Código R</span><button class="copy" type="button">Copiar</button>';
+    box.prepend(lbl);
+    lbl.querySelector('.copy').onclick=async(e)=>{
+      const b=e.currentTarget;
+      try{await navigator.clipboard.writeText(src);b.textContent='¡Copiado!';}
+      catch(err){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Seleccionado';}
+      setTimeout(()=>b.textContent='Copiar',1500);
+    };
+  });
+  document.querySelectorAll('.out').forEach(o=>{const l=document.createElement('div');l.className='lbl';l.textContent='Resultado en R';o.prepend(l)});
+
+  /* ---- quizzes ---- */
+  document.querySelectorAll('.q').forEach(q=>{
+    const ans=+q.dataset.ans, fb=q.querySelector('.fb'), opts=[...q.querySelectorAll('.opt')];
+    opts.forEach((b,i)=>b.onclick=()=>{
+      opts.forEach(o=>o.classList.remove('ok','no'));
+      if(i===ans){b.classList.add('ok');fb.className='fb ok';fb.textContent='✅ '+fb.dataset.ok;}
+      else{b.classList.add('no');fb.className='fb no';fb.textContent='❌ '+fb.dataset.no;}
+    });
+  });
+
+  /* ---- arranque ---- */
+  const h=location.hash.match(/cap-(\d+)/);
+  const start=h?+h[1]:(+store.get('rdc-cap')||0);
+  cur=start; go(start);
+})();
+</script>
+</body>
+</html>
