@@ -3,7 +3,7 @@
 Guía para aprender R **sin saber programar**, pensada para preparar un examen.
 Cada tema incluye una explicación en palabras simples, código listo para copiar, **el resultado exacto que muestra R**, ejercicios con solución y preguntas tipo examen.
 
-👉 **Ver la guía:** https://sistemasecoplaza.github.io/r-desde-cero/
+👉 **Ver la guía:** https://r-desde-cero.vercel.app/ (espejo en GitHub Pages: https://sistemasecoplaza.github.io/r-desde-cero/)
 
 Funciona en celular, tablet y laptop, tiene modo claro/oscuro y recuerda en qué capítulo te quedaste.
 
